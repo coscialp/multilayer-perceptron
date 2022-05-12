@@ -1,9 +1,9 @@
-import json
 import sys, os
 import matplotlib.pyplot as plt 
 import numpy as np
 from AI_learn.neural_network import MLPClassifier
 from AI_learn.dataset import load_dataset
+from AI_learn.preprocessing.scaler import StandartScaler
 
 
 def verif_arg() -> bool:
@@ -79,13 +79,14 @@ def save_model(best_model):
         if best_model.normalize_ == True:
             np.save(file, best_model.normalize_mean_)
             np.save(file, best_model.normalize_std_)
-        for c in range(1, len(best_model.parameters_) // 2):
+        for c in range(1, len(best_model.parameters_) // 2 + 1):
             np.save(file, best_model.parameters_[f'W{c}'])
             np.save(file, best_model.parameters_[f'b{c}'])
 
 
 def load_model():
     hidden_layer = None
+    normalize = None
     mean = None
     std = None
     parameters = {}
@@ -96,11 +97,11 @@ def load_model():
         if normalize == True:
             mean = np.load(file)
             std = np.load(file)
-        for c in range(1, C):
+        for c in range(1, C + 1):
             parameters[f'W{c}'] = np.load(file)
             parameters[f'b{c}'] = np.load(file)
 
-    return (hidden_layer, mean, std, parameters)
+    return (hidden_layer, mean, std, parameters, normalize)
 
 
 if __name__ == '__main__':
@@ -143,12 +144,20 @@ if __name__ == '__main__':
 
         plt.show()
     elif sys.argv[1] == 'predict':
-        hidden_layer, mean, std, parameters = load_model()
+        hidden_layers, mean, std, parameters, normalize = load_model()
 
-        print(hidden_layer)
-        print(mean)
-        print(std)
-        for key, val in parameters.items():
-            print(f'{key}: {val.shape}')
+        model = MLPClassifier(hidden_layers)
+
+        X = StandartScaler(X, mean, std)
+
+        model.parameters_ = parameters
+
+        A = model.predict_proba(X)
+        score = model.score(X, y)
+        loss = model.log_loss(y, A)
+        
+        print(f'The cost function value is {loss:.5f}')
+        print(f'The precision score is {score * 100:.2f}%')
+
 
         
