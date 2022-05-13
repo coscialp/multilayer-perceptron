@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from AI_learn.neural_network import MLPClassifier
 from AI_learn.dataset import load_dataset
-from AI_learn.preprocessing.scaler import StandartScaler
+from AI_learn.preprocessing import StandartScaler, one_hot
 
 
 def verif_arg() -> bool:
@@ -110,17 +110,19 @@ if __name__ == '__main__':
     dataset = load_dataset(sys.argv[2], y_name='Diagnosis', indesirable_feature=['Index'])
 
     X = dataset.data.T
-    y = dataset.target.T
+    y = dataset.target
+
+    y_onehot = one_hot(y).T
 
     if sys.argv[1] == 'fit':
-        adam = MLPClassifier(hidden_layers=(128, 128, 128), n_iter=2000, learning_rate=0.001, normalize=True, early_stopping=False)
-        adam.fit(X, y, solver='adam', random_state=0)
+        adam = MLPClassifier(hidden_layers=(128, 128, 128), n_iter=2000, learning_rate=0.001, normalize=True, early_stopping=True, multiclass=True)
+        adam.fit(X, y_onehot, solver='adam', random_state=0)
 
-        sgd = MLPClassifier(hidden_layers=(128, 128, 128), n_iter=2000, learning_rate=0.001, normalize=True, early_stopping=False)
-        sgd.fit(X, y, solver='sgd', random_state=0)
+        sgd = MLPClassifier(hidden_layers=(128, 128, 128), n_iter=2000, learning_rate=0.001, normalize=True, early_stopping=True, multiclass=True)
+        sgd.fit(X, y_onehot, solver='sgd', random_state=0)
 
-        RMSprop = MLPClassifier(hidden_layers=(128, 128, 128), n_iter=2000, learning_rate=0.001, normalize=True, early_stopping=False)
-        RMSprop.fit(X, y, solver='RMSprop', random_state=0)
+        RMSprop = MLPClassifier(hidden_layers=(128, 128, 128), n_iter=2000, learning_rate=0.001, normalize=True, early_stopping=True, multiclass=True)
+        RMSprop.fit(X, y_onehot, solver='RMSprop', random_state=0)
 
         fig, ax = plt.subplots(1, 3, figsize=(14, 7))
 
@@ -146,15 +148,15 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'predict':
         hidden_layers, mean, std, parameters, normalize = load_model()
 
-        model = MLPClassifier(hidden_layers)
+        model = MLPClassifier(hidden_layers, multiclass=True)
 
         X = StandartScaler(X, mean, std)
 
         model.parameters_ = parameters
 
         A = model.predict_proba(X)
-        score = model.score(X, y)
-        loss = model.log_loss(y, A)
+        score = model.score(X, y_onehot)
+        loss = model.log_loss(y_onehot, A)
         
         print(f'The cost function value is {loss:.5f}')
         print(f'The precision score is {score * 100:.2f}%')
