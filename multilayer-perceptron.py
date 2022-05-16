@@ -6,6 +6,42 @@ from AI_learn.dataset import load_dataset
 from AI_learn.preprocessing import StandartScaler, one_hot
 
 
+features_name=[
+    'Index',
+    'Diagnosis',
+    'Radius',
+    'Texture',
+    'Perimeter',
+    'Area',
+    'Smoothness',
+    'Compactness',
+    'Concavity',
+    'Concave_Points',
+    'Symmetry',
+    'Fractal_Dimension',
+    'RadiusSE',
+    'TextureSE',
+    'PerimeterSE',
+    'AreaSE',
+    'SmoothnessSE',
+    'CompactnessSE',
+    'ConcavitySE',
+    'Concave_PointSE',
+    'SymmetrySE',
+    'Fractal_DimensionSE',
+    'RadiusW',
+    'TextureW',
+    'PerimeterW',
+    'AreaW',
+    'SmoothnessW',
+    'CompactnessW',
+    'ConcavityW',
+    'Concave_PointsW',
+    'SymmetryW',
+    'Fractal_DimensionW'
+    ]
+
+
 def verif_arg() -> bool:
     number_of_arg = len(sys.argv)
     save = False
@@ -111,7 +147,7 @@ def load_model():
 if __name__ == '__main__':
     save = verif_arg()
         
-    dataset = load_dataset(sys.argv[2], y_name='Diagnosis', indesirable_feature=['Index'])
+    dataset = load_dataset(sys.argv[2], y_name='Diagnosis', indesirable_feature=['Index'], features_name=features_name)
 
     X = dataset.data.T
     y = dataset.target
@@ -133,10 +169,10 @@ if __name__ == '__main__':
         best_model = adam
         best_model_name = 'adam'
         
-        if best_model.val_loss_[-1] < sgd.val_loss_[-1]:
+        if best_model.val_loss_[-1] > sgd.val_loss_[-1]:
             best_model = sgd
             best_model_name = 'sgd'
-        if best_model.val_loss_[-1] < RMSprop.val_loss_[-1]:
+        if best_model.val_loss_[-1] > RMSprop.val_loss_[-1]:
             best_model = RMSprop
             best_model_name = 'RMSprop'
 
