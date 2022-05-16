@@ -64,7 +64,7 @@ def print_metrics(ax, fig, model, name_of_model, save):
     print(f'Metrics of {name_of_model}\'s model:')
     print('-' * 100)
     for epoch, loss in enumerate(model.loss_):
-        line = f'epoch {epoch + 1}/{len(model.loss_)} - loss: {loss:.5f} - val_loss: {model.val_loss_[epoch]:.5f} - acc: {model.acc_[epoch]:.5f}'
+        line = f'epoch {(epoch + 1)}/{len(model.loss_)} - loss: {loss:.5f} - val_loss: {model.val_loss_[epoch]:.5f} - acc: {model.acc_[epoch]:.5f}'
         if save == True:
             file.write(f'{line}\n')
         print(line)
@@ -115,13 +115,13 @@ if __name__ == '__main__':
     y_onehot = one_hot(y).T
 
     if sys.argv[1] == 'fit':
-        adam = MLPClassifier(hidden_layers=(128, 128, 128), n_iter=2000, learning_rate=0.001, normalize=True, early_stopping=True, multiclass=True)
+        adam = MLPClassifier(hidden_layers=(128, 128, 128), n_iter=2000, learning_rate=0.001, normalize=True, early_stopping=False, multiclass=True)
         adam.fit(X, y_onehot, solver='adam', random_state=0)
 
-        sgd = MLPClassifier(hidden_layers=(128, 128, 128), n_iter=2000, learning_rate=0.001, normalize=True, early_stopping=True, multiclass=True)
+        sgd = MLPClassifier(hidden_layers=(128, 128, 128), n_iter=2000, learning_rate=0.001, normalize=True, early_stopping=False, multiclass=True)
         sgd.fit(X, y_onehot, solver='sgd', random_state=0)
 
-        RMSprop = MLPClassifier(hidden_layers=(128, 128, 128), n_iter=2000, learning_rate=0.001, normalize=True, early_stopping=True, multiclass=True)
+        RMSprop = MLPClassifier(hidden_layers=(128, 128, 128), n_iter=2000, learning_rate=0.001, normalize=True, early_stopping=False, multiclass=True)
         RMSprop.fit(X, y_onehot, solver='RMSprop', random_state=0)
 
         fig, ax = plt.subplots(1, 3, figsize=(14, 7))
@@ -129,10 +129,10 @@ if __name__ == '__main__':
         best_model = adam
         best_model_name = 'adam'
         
-        if best_model.acc_[-1] < sgd.acc_[-1]:
+        if best_model.val_loss_[-1] < sgd.val_loss_[-1]:
             best_model = sgd
             best_model_name = 'sgd'
-        if best_model.acc_[-1] < RMSprop.acc_[-1]:
+        if best_model.val_loss_[-1] < RMSprop.val_loss_[-1]:
             best_model = RMSprop
             best_model_name = 'RMSprop'
 
