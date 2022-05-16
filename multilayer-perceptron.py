@@ -90,16 +90,20 @@ def load_model():
     mean = None
     std = None
     parameters = {}
-    with open('model.npy', 'rb') as file:
-        hidden_layer = np.load(file)
-        C = np.load(file)
-        normalize = np.load(file)
-        if normalize == True:
-            mean = np.load(file)
-            std = np.load(file)
-        for c in range(1, C + 1):
-            parameters[f'W{c}'] = np.load(file)
-            parameters[f'b{c}'] = np.load(file)
+    try:
+        with open('model.npy', 'rb') as file:
+            hidden_layer = np.load(file)
+            C = np.load(file)
+            normalize = np.load(file)
+            if normalize == True:
+                mean = np.load(file)
+                std = np.load(file)
+            for c in range(1, C + 1):
+                parameters[f'W{c}'] = np.load(file)
+                parameters[f'b{c}'] = np.load(file)
+    except FileNotFoundError:
+        print('model.npy doesn\'t exist. Please try to launch a fit program!')
+        exit(1)
 
     return (hidden_layer, mean, std, parameters, normalize)
 
