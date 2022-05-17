@@ -155,32 +155,32 @@ if __name__ == '__main__':
     y_onehot = one_hot(y).T
 
     if sys.argv[1] == 'fit':
-        adam = MLPClassifier(hidden_layers=(128, 128, 128), n_iter=2000, learning_rate=0.001, normalize=True, early_stopping=False, multiclass=True)
-        adam.fit(X, y_onehot, solver='adam', random_state=0)
+        adam = MLPClassifier(hidden_layers=(10, 10), n_iter=1000, learning_rate=0.001, normalize=True, early_stopping=False, multiclass=True)
+        adam.fit(X, y_onehot, solver='adam', batch_size=16)
 
-        sgd = MLPClassifier(hidden_layers=(128, 128, 128), n_iter=2000, learning_rate=0.001, normalize=True, early_stopping=False, multiclass=True)
-        sgd.fit(X, y_onehot, solver='sgd', random_state=0)
+        # sgd = MLPClassifier(hidden_layers=(10, 10), n_iter=10000, learning_rate=0.001, normalize=True, early_stopping=False, multiclass=True)
+        # sgd.fit(X, y_onehot, solver='sgd', random_state=0)
 
-        RMSprop = MLPClassifier(hidden_layers=(128, 128, 128), n_iter=2000, learning_rate=0.001, normalize=True, early_stopping=False, multiclass=True)
-        RMSprop.fit(X, y_onehot, solver='RMSprop', random_state=0)
+        # RMSprop = MLPClassifier(hidden_layers=(10, 10), n_iter=10000, learning_rate=0.001, normalize=True, early_stopping=False, multiclass=True)
+        # RMSprop.fit(X, y_onehot, solver='RMSprop', random_state=0)
 
         fig, ax = plt.subplots(1, 3, figsize=(14, 7))
 
         best_model = adam
         best_model_name = 'adam'
         
-        if best_model.val_loss_[-1] > sgd.val_loss_[-1]:
-            best_model = sgd
-            best_model_name = 'sgd'
-        if best_model.val_loss_[-1] > RMSprop.val_loss_[-1]:
-            best_model = RMSprop
-            best_model_name = 'RMSprop'
+        # if best_model.val_loss_[-1] > sgd.val_loss_[-1]:
+        #     best_model = sgd
+        #     best_model_name = 'sgd'
+        # if best_model.val_loss_[-1] > RMSprop.val_loss_[-1]:
+        #     best_model = RMSprop
+        #     best_model_name = 'RMSprop'
 
         save_model(best_model)
 
         print_metrics(ax, fig, adam, 'adam', save)
-        print_metrics(ax, fig, sgd, 'sgd', save)
-        print_metrics(ax, fig, RMSprop, 'RMSprop', save)
+        # print_metrics(ax, fig, sgd, 'sgd', save)
+        # print_metrics(ax, fig, RMSprop, 'RMSprop', save)
 
         print(f'The {best_model_name} model is the best. So we keep its parameters')
 
