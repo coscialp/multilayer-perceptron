@@ -1,11 +1,9 @@
-from random import randint
 import sys, os
 import matplotlib.pyplot as plt 
 import numpy as np
-from scipy import rand
 from AI_learn.neural_network import MLPClassifier
 from AI_learn.dataset import load_dataset
-from AI_learn.preprocessing import StandartScaler, one_hot
+from AI_learn.preprocessing import StandartScaler, one_hot, MinMaxScaler
 
 
 features_name=[
@@ -71,9 +69,9 @@ def verif_arg() -> bool:
 
 
 def print_metrics(ax, fig, model, name_of_model, save):
-    ax[0].plot(range(0, len(model.loss_) * 10, 10), model.loss_, label=f'loss_{name_of_model}')
-    ax[1].plot(range(0, len(model.val_loss_) * 10, 10), model.val_loss_, label=f'val_loss_{name_of_model}')
-    ax[2].plot(range(0, len(model.acc_) * 10, 10), model.acc_, label=f'acc_{name_of_model}')
+    ax[0].plot(range(0, len(model.loss_), 1), model.loss_, label=f'loss_{name_of_model}')
+    ax[1].plot(range(0, len(model.val_loss_), 1), model.val_loss_, label=f'val_loss_{name_of_model}')
+    ax[2].plot(range(0, len(model.acc_), 1), model.acc_, label=f'acc_{name_of_model}')
 
     ax[0].set_xlabel('N iterations')
     ax[1].set_xlabel('N iterations')
@@ -157,6 +155,8 @@ if __name__ == '__main__':
         
     dataset = load_dataset(sys.argv[2], y_name='Diagnosis', indesirable_feature=['Index'], features_name=features_name)
 
+    # dataset.describe(['Diagnosis'])
+
     X = dataset.data.T
     y = dataset.target
 
@@ -164,19 +164,20 @@ if __name__ == '__main__':
 
     if sys.argv[1] == 'fit':
         adam = MLPClassifier(
-            hidden_layers=(16, 16),
-            n_iter=2000,
+            hidden_layers=(10, 10),
+            n_iter=100,
             learning_rate_init=0.001,
             normalize=True,
             multiclass=True,
-            shuffle=False,
+            shuffle=True,
             activation='tanh',
             out_activation='softmax',
             solver='adam',
-            batch_size=16,
+            batch_size=32,
+            epsilon=1e-08
             )
 
-        adam.fit(X, y_onehot, random_state=0, test_size=0.1)
+        adam.fit(X, y_onehot, random_state=0, test_size=0.2)
 
         fig, ax = plt.subplots(1, 3, figsize=(14, 7))
 
