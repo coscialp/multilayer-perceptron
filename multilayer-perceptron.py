@@ -153,9 +153,7 @@ def load_model():
 if __name__ == '__main__':
     save = verif_arg()
         
-    dataset = load_dataset(sys.argv[2], y_name='Diagnosis', indesirable_feature=['Index'], features_name=features_name)
-
-    # dataset.describe(['Diagnosis'])
+    dataset = load_dataset(sys.argv[2], y_name='Diagnosis', target_order={'M': 0, 'B': 1}, indesirable_feature=['Index'], features_name=features_name)
 
     X = dataset.data.T
     y = dataset.target
@@ -174,16 +172,40 @@ if __name__ == '__main__':
             out_activation='softmax',
             solver='adam',
             batch_size=32,
-            epsilon=1e-08
+            epsilon=1e-08,
             )
 
         adam.fit(X, y_onehot, random_state=0, test_size=0.2)
 
+        sgd = MLPClassifier(
+            hidden_layers=(10, 10),
+            n_iter=100,
+            learning_rate_init=0.001,
+            normalize=True,
+            multiclass=True,
+            shuffle=True,
+            activation='tanh',
+            out_activation='softmax',
+            solver='sgd',
+            batch_size=8,
+            epsilon=1e-08,
+            )
+
+        sgd.fit(X, y_onehot, random_state=0, test_size=0.2)
+
         fig, ax = plt.subplots(1, 3, figsize=(14, 7))
 
-        save_model(adam)
+        best_model = adam
+        best_model_name = 'adam'
 
+        if adam.val_loss_[-1] > sgd.val_loss_[-1]:
+            best_model = sgd
+            best_model_name = 'sgd'
+
+        save_model(best_model)
         print_metrics(ax, fig, adam, 'adam', save)
+        print_metrics(ax, fig, sgd, 'sgd', save)
+        print(f'The best model are {best_model_name}.')
 
         plt.show()
     elif sys.argv[1] == 'predict':
